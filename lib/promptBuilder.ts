@@ -8,53 +8,56 @@ export const REFERENCE_IMAGES = [
 ]
 
 // =============================================================================
-// STYLE PROMPT — the single most important thing in this entire codebase.
+// STYLE PROMPT — the most critical part of the entire codebase.
 //
-// Every generation is prefixed with this. It describes the EXACT visual language
-// of the hamster meme sticker collection:
-//   - crude lo-fi hand-drawn aesthetic (phone drawing app, MS Paint energy)
-//   - white blob hamster body (rounded triangle / egg silhouette)
-//   - small beady black dot eyes with heavy scribbled dark shadow rings
-//   - small pink triangle nose, centered
-//   - deliberately pixelated/jagged black outlines (NOT smooth bezier curves)
-//   - flat white body, extremely limited color palette
-//   - pure black background for sticker use
-//   - meme/cursed art energy — intentionally "bad" art
-//
-// DO NOT remove or soften this prefix. It is the style lock.
+// The target style is a SPECIFIC viral internet hamster meme drawn on a phone.
+// Key characteristics that MUST be preserved:
+//   - BADLY drawn on purpose — looks like a 5-year-old drew it in a phone app
+//   - White egg/triangle blob body — no fur texture, just flat white fill
+//   - Scribbled dark eye marks — messy black scrawl, not cute anime eyes
+//   - Pink flat triangle nose — pixelated, no gradients
+//   - ROUGH jagged black outlines — not smooth, not bezier, looks hand-wobbled
+//   - Zero shading, zero gradients, zero depth
+//   - MS Paint / phone drawing app quality — deliberately amateur
+//   - NOT animated, NOT cute, NOT polished, NOT Disney, NOT anime
 // =============================================================================
 const STYLE_PREFIX = [
-  'internet meme hamster sticker',
-  'crude deliberately lo-fi hand-drawn digital art',
-  'ms paint drawing style',
-  'white chubby blob hamster character',
-  'rounded triangular egg-shaped body',
-  'small beady black dot eyes with heavy dark scribbled shadow circles around them',
-  'tiny pink salmon-colored triangle nose centered on face',
-  'rough pixelated jagged black outlines',
-  'thick black cartoon border',
-  'flat 2d illustration',
-  'no gradients no shading',
-  'pure flat colors',
-  'intentionally crude ugly art aesthetic',
-  'internet meme humor',
-  'cursed meme art style',
-  'viral hamster meme character',
-  'pixel-quality rough lines',
-  'white hamster body',
+  'badly drawn crude internet meme hamster',
+  'ugly on purpose amateur drawing',
+  'phone finger-drawing app scribble',
+  'ms paint quality',
+  'poorly drawn',
+  'intentionally bad art',
+  'no artistic skill',
+  'white egg-shaped blob hamster body',
+  'flat white fill no texture no fur',
+  'scribbled messy dark black marks for eyes',
+  'small pixelated pink triangle nose',
+  'rough wobbly jagged thick black outline',
+  'zero shading zero gradients',
+  'flat solid colors only',
+  'crude doodle style',
+  'lo-fi pixel quality lines',
+  'looks drawn by a child',
+  'deliberately terrible art',
+  'cursed meme drawing',
   'pure black background',
 ].join(', ') + ', '
 
-const STYLE_SUFFIX =
-  ', pure black background #000000, flat sticker art, lo-fi drawing, limited color palette, white hamster, black border outline'
+const STYLE_SUFFIX = [
+  'pure black #000000 background',
+  'ugly drawing style',
+  'no smooth lines',
+  'no professional art',
+  'crude pixelated outlines',
+  'flat white hamster body',
+  'badly drawn sticker',
+  'ms paint scribble',
+].join(', ')
 
 export function buildPrompt(userPrompt: string): string {
-  return STYLE_PREFIX + userPrompt + STYLE_SUFFIX
+  return STYLE_PREFIX + userPrompt + ', ' + STYLE_SUFFIX
 }
-
-// Not used directly in generation but exported for reference
-export const NEGATIVE_PROMPT =
-  'realistic fur, photorealistic, smooth lines, 3d render, detailed, anime, manga, disney, pixar, studio ghibli, professional art, watercolor, oil painting, complex shading, gradient, beautiful, masterpiece, 8k'
 
 export const LOADING_MESSAGES = [
   'Scribbling in ms paint...',
