@@ -30,10 +30,10 @@ export default function LoadingHamster() {
       </div>
 
       <div className="text-center">
-        <p className="text-orange-400 font-mono text-sm tracking-wider uppercase animate-pulse">
+        <p className="text-orange-400 text-sm tracking-widest uppercase animate-pulse">
           Generating...
         </p>
-        <p className="text-gray-500 font-mono text-xs mt-2 transition-all duration-500">
+        <p className="text-gray-400 text-xs mt-2 transition-all duration-500">
           {LOADING_MESSAGES[msgIndex]}
         </p>
       </div>

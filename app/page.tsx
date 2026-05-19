@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react'
 import GeneratorForm from '@/components/GeneratorForm'
 import ImageResult from '@/components/ImageResult'
 import Gallery from '@/components/Gallery'
-import StyleExamples from '@/components/StyleExamples'
 import LoadingHamster from '@/components/LoadingHamster'
 import type { GeneratedSticker } from '@/lib/types'
 
@@ -24,9 +23,7 @@ function loadGallery(): GeneratedSticker[] {
 function saveGallery(stickers: GeneratedSticker[]) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stickers.slice(-MAX_GALLERY)))
-  } catch {
-    // localStorage may be unavailable
-  }
+  } catch {}
 }
 
 export default function Home() {
@@ -79,9 +76,7 @@ export default function Home() {
   }, [])
 
   function regenerate() {
-    if (lastPrompt) {
-      generate(lastPrompt)
-    }
+    if (lastPrompt) generate(lastPrompt)
   }
 
   function clearGallery() {
@@ -90,25 +85,23 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-black flex flex-col items-center px-4 py-8 pb-16 max-w-xl mx-auto">
+    <main className="min-h-screen bg-black flex flex-col items-center px-4 py-12 pb-20 max-w-lg mx-auto">
 
       {/* Header */}
-      <header className="w-full text-center mb-8">
-        <h1 className="text-4xl font-black font-mono tracking-tight mb-1">
-          <span className="text-orange-500">HOM</span>
+      <header className="w-full text-center mb-12">
+        <div className="inline-flex items-center gap-3 mb-5">
+          <div className="w-10 h-px bg-orange-500/50" />
+          <span className="text-orange-500/60 font-mono text-xs tracking-[0.3em] uppercase">sticker generator</span>
+          <div className="w-10 h-px bg-orange-500/50" />
+        </div>
+        <h1 className="text-7xl font-black tracking-tighter mb-4 leading-none">
+          <span className="text-white">H</span><span className="text-orange-500">O</span><span className="text-white">M</span>
         </h1>
-        <p className="text-gray-600 font-mono text-xs tracking-widest uppercase">
-          Hamster Sticker Generator
-        </p>
-        <p className="text-gray-700 font-mono text-xs mt-2 max-w-xs mx-auto">
-          Generate custom hamster meme stickers. Black background ready for iPhone stickers.
+        <p className="text-gray-400 text-sm leading-relaxed max-w-[260px] mx-auto">
+          Generate crude hand-drawn hamster stickers.<br />
+          Black background — iPhone ready.
         </p>
       </header>
-
-      {/* Style examples */}
-      <div className="w-full mb-8">
-        <StyleExamples />
-      </div>
 
       {/* Generator form */}
       <div className="w-full mb-8">
@@ -117,24 +110,24 @@ export default function Home() {
 
       {/* Error state */}
       {error && (
-        <div className="w-full mb-6 p-4 rounded-xl border border-red-900 bg-red-950/30">
-          <p className="text-red-400 font-mono text-sm">{error}</p>
-          <p className="text-red-700 font-mono text-xs mt-1">
-            Check the terminal (where you ran npm run dev) for details on which step failed.
+        <div className="w-full mb-6 p-4 rounded-2xl border border-red-800/50 bg-red-950/20">
+          <p className="text-red-300 text-sm font-medium">{error}</p>
+          <p className="text-red-500/60 text-xs mt-1">
+            Check the terminal for details on which step failed.
           </p>
         </div>
       )}
 
       {/* Loading state */}
       {isLoading && (
-        <div className="w-full mb-6 rounded-2xl border border-[#222] bg-[#111] overflow-hidden">
+        <div className="w-full mb-6 rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
           <LoadingHamster />
         </div>
       )}
 
       {/* Result */}
       {currentSticker && !isLoading && (
-        <div className="w-full mb-8">
+        <div className="w-full mb-10">
           <ImageResult
             sticker={currentSticker}
             onRegenerate={regenerate}
@@ -156,14 +149,13 @@ export default function Home() {
       )}
 
       {/* Footer */}
-      <footer className="mt-12 text-center">
-        <p className="text-gray-800 font-mono text-xs">
-          Style locked to the exact hamster meme collection.
+      <footer className="mt-16 text-center flex flex-col gap-2">
+        <p className="text-gray-500 text-xs">
+          by <span className="text-gray-300 font-medium tracking-wide">dawid kopik</span>
         </p>
-        <p className="text-gray-900 font-mono text-xs mt-1">
-          Powered by FLUX Dev via Replicate
-        </p>
+        <p className="text-gray-700 text-xs">powered by gemini</p>
       </footer>
+
     </main>
   )
 }

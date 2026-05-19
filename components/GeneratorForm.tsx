@@ -4,17 +4,17 @@ import { useState, useRef } from 'react'
 
 const EXAMPLE_PROMPTS = [
   'sad hamster holding coffee',
-  'hamster dressed as a Formula 1 driver',
-  'hamster wearing sunglasses and eating watermelon',
-  'hamster crying because Monday started',
+  'hamster as a Formula 1 driver',
+  'hamster wearing sunglasses eating watermelon',
+  'hamster crying because Monday',
   'hamster as a medieval knight',
   'hamster holding a tiny guitar',
-  'hamster in a business suit looking stressed',
-  'hamster sitting in a tiny gaming chair',
+  'hamster in a suit looking stressed',
+  'hamster in a tiny gaming chair',
   'hamster as a pirate captain',
   'hamster playing video games',
   'hamster doing yoga',
-  'hamster as a chef holding a spoon',
+  'hamster as a chef',
 ]
 
 interface Props {
@@ -38,18 +38,19 @@ export default function GeneratorForm({ onGenerate, isLoading }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="w-full flex flex-col gap-4">
-      {/* Prompt textarea */}
+    <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
+
+      {/* Textarea */}
       <div className="relative">
         <textarea
           ref={textareaRef}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Describe your hamster...&#10;e.g. sad hamster holding coffee"
+          placeholder={'Describe your hamster...\ne.g. sad hamster holding coffee'}
           maxLength={500}
           rows={3}
           disabled={isLoading}
-          className="w-full bg-[#111] border-2 border-[#333] focus:border-orange-500 rounded-xl px-4 py-3 text-white placeholder-gray-700 font-mono text-sm resize-none outline-none transition-colors duration-200 disabled:opacity-50"
+          className="w-full bg-[#0d0d0d] border border-white/10 focus:border-orange-500/60 rounded-2xl px-4 py-3.5 text-white placeholder-gray-600 text-sm resize-none outline-none transition-colors duration-200 disabled:opacity-50 leading-relaxed"
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault()
@@ -57,24 +58,24 @@ export default function GeneratorForm({ onGenerate, isLoading }: Props) {
             }
           }}
         />
-        <span className="absolute bottom-2 right-3 text-gray-700 text-xs font-mono">
+        <span className="absolute bottom-3 right-4 text-gray-600 text-xs">
           {prompt.length}/500
         </span>
       </div>
 
-      {/* Example prompts */}
+      {/* Example chips */}
       <div>
-        <p className="text-gray-700 font-mono text-xs uppercase tracking-widest mb-2">
-          Try one of these
+        <p className="text-gray-500 text-xs uppercase tracking-widest mb-2.5">
+          Try one →
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {EXAMPLE_PROMPTS.map((ex) => (
             <button
               key={ex}
               type="button"
               onClick={() => useExamplePrompt(ex)}
               disabled={isLoading}
-              className="text-xs font-mono px-2 py-1 rounded-lg bg-[#1a1a1a] text-gray-500 hover:text-orange-400 hover:bg-[#222] border border-[#2a2a2a] hover:border-orange-500/40 transition-all duration-150 disabled:opacity-30 truncate max-w-[220px]"
+              className="text-xs px-3 py-1.5 rounded-full bg-white/5 text-gray-400 hover:text-white hover:bg-white/10 border border-white/8 hover:border-orange-500/30 transition-all duration-150 disabled:opacity-30"
             >
               {ex}
             </button>
@@ -86,12 +87,12 @@ export default function GeneratorForm({ onGenerate, isLoading }: Props) {
       <button
         type="submit"
         disabled={isLoading || !prompt.trim()}
-        className="w-full py-4 rounded-xl font-mono font-bold text-black text-lg tracking-wider uppercase transition-all duration-200
+        className="w-full py-4 rounded-2xl font-bold text-black text-base tracking-wide uppercase transition-all duration-200
           bg-orange-500 hover:bg-orange-400 active:scale-[0.98]
-          disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-orange-500
-          shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40"
+          disabled:opacity-30 disabled:cursor-not-allowed
+          shadow-[0_0_30px_rgba(249,115,22,0.25)] hover:shadow-[0_0_40px_rgba(249,115,22,0.4)]"
       >
-        {isLoading ? 'Generating...' : 'Generate Hamster ↗'}
+        {isLoading ? 'Generating...' : 'Generate Hamster'}
       </button>
     </form>
   )

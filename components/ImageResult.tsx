@@ -21,13 +21,12 @@ export default function ImageResult({ sticker, onRegenerate, isLoading }: Props)
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `hamster-${sticker.id}.png`
+      a.download = `hom-${sticker.id}.png`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch {
-      // Fallback: open in new tab
       window.open(sticker.imageUrl, '_blank')
     } finally {
       setDownloading(false)
@@ -42,18 +41,20 @@ export default function ImageResult({ sticker, onRegenerate, isLoading }: Props)
 
   return (
     <div className="w-full flex flex-col gap-4">
+
+      {/* Label row */}
       <div className="flex items-center justify-between">
-        <h2 className="text-gray-400 font-mono text-xs uppercase tracking-widest">Result</h2>
+        <span className="text-gray-400 text-xs uppercase tracking-widest">Result</span>
         <button
           onClick={copyPrompt}
-          className="text-gray-600 hover:text-orange-400 font-mono text-xs transition-colors"
+          className="text-gray-500 hover:text-orange-400 text-xs transition-colors"
         >
-          {copied ? '✓ copied' : '⌘ copy prompt'}
+          {copied ? '✓ copied' : 'copy prompt'}
         </button>
       </div>
 
-      {/* Image on pure black background */}
-      <div className="relative w-full rounded-2xl overflow-hidden bg-black border border-[#222]" style={{ aspectRatio: '1/1' }}>
+      {/* Image */}
+      <div className="relative w-full rounded-2xl overflow-hidden bg-black border border-white/[0.07]" style={{ aspectRatio: '1/1' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={sticker.imageUrl}
@@ -63,30 +64,30 @@ export default function ImageResult({ sticker, onRegenerate, isLoading }: Props)
         />
       </div>
 
-      {/* Prompt display */}
-      <p className="text-gray-600 font-mono text-xs px-1 italic truncate">
+      {/* Prompt */}
+      <p className="text-gray-500 text-xs px-1 italic truncate">
         &quot;{sticker.prompt}&quot;
       </p>
 
-      {/* Action buttons */}
+      {/* Buttons */}
       <div className="flex gap-3">
         <button
           onClick={downloadImage}
           disabled={downloading}
-          className="flex-1 py-3 rounded-xl font-mono font-bold text-black uppercase tracking-wider transition-all duration-150
-            bg-orange-500 hover:bg-orange-400 active:scale-95
-            disabled:opacity-50 shadow-lg shadow-orange-500/20"
+          className="flex-1 py-3.5 rounded-2xl font-bold text-black uppercase tracking-wide text-sm transition-all duration-150
+            bg-orange-500 hover:bg-orange-400 active:scale-[0.98]
+            disabled:opacity-50
+            shadow-[0_0_25px_rgba(249,115,22,0.2)] hover:shadow-[0_0_35px_rgba(249,115,22,0.35)]"
         >
           {downloading ? 'Saving...' : '↓ Download PNG'}
         </button>
         <button
           onClick={onRegenerate}
           disabled={isLoading}
-          title="Generate a variation of this hamster"
-          className="px-4 py-3 rounded-xl font-mono text-gray-400 uppercase tracking-wider
-            bg-[#1a1a1a] hover:bg-[#222] border border-[#333] hover:border-orange-500/40
-            hover:text-orange-400 active:scale-95 transition-all duration-150
-            disabled:opacity-30"
+          title="Regenerate"
+          className="px-5 py-3.5 rounded-2xl text-gray-400 hover:text-white
+            bg-white/5 hover:bg-white/10 border border-white/8 hover:border-white/20
+            active:scale-[0.98] transition-all duration-150 disabled:opacity-30 text-base"
         >
           ↺
         </button>
