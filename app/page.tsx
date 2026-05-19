@@ -25,26 +25,60 @@ function saveGallery(stickers: GeneratedSticker[]) {
 }
 
 function EmptyState() {
+  const refs = ['/refs/ref1.png', '/refs/ref2.png', '/refs/ref3.png', '/refs/ref4.png', '/refs/ref5.png']
   return (
-    <div className="w-full aspect-square rounded-3xl border border-pink-900/30 bg-pink-950/10 flex flex-col items-center justify-center gap-6 relative overflow-hidden">
-      {/* Decorative blobs */}
-      <div className="absolute top-1/3 left-1/4 w-40 h-40 rounded-full bg-pink-500/5 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/4 w-32 h-32 rounded-full bg-pink-400/5 blur-2xl pointer-events-none" />
+    <div className="w-full aspect-square rounded-3xl overflow-hidden relative bg-[#09060c]">
+      {/* Collage grid: big left + 2 right top + 3 bottom */}
+      <div className="w-full h-full flex flex-col gap-1 p-1">
 
-      <span className="text-8xl animate-float select-none relative z-10">🐹</span>
+        {/* Top row: 1 large + 2 stacked */}
+        <div className="flex gap-1 flex-[3]">
+          <div className="flex-[5] rounded-2xl overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={refs[0]} alt="" className="w-full h-full object-cover object-center" />
+          </div>
+          <div className="flex-[3] flex flex-col gap-1">
+            <div className="flex-1 rounded-2xl overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={refs[1]} alt="" className="w-full h-full object-cover object-center" />
+            </div>
+            <div className="flex-1 rounded-2xl overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={refs[2]} alt="" className="w-full h-full object-cover object-center" />
+            </div>
+          </div>
+        </div>
 
-      <div className="text-center relative z-10 px-8">
-        <p className="font-display italic text-pink-300/60 text-2xl mb-2">
-          your hamster is waiting...
-        </p>
-        <p className="text-pink-900/80 text-sm leading-relaxed">
-          describe it on the left and press generate ♥
-        </p>
+        {/* Bottom row: 2 equal */}
+        <div className="flex gap-1 flex-[2]">
+          <div className="flex-1 rounded-2xl overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={refs[3]} alt="" className="w-full h-full object-cover object-center" />
+          </div>
+          <div className="flex-1 rounded-2xl overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={refs[4]} alt="" className="w-full h-full object-cover object-center" />
+          </div>
+        </div>
+
       </div>
 
-      {/* Corner decorations */}
-      <span className="absolute top-5 left-6 text-pink-900/30 text-xs tracking-widest uppercase font-display italic">hom</span>
-      <span className="absolute bottom-5 right-6 text-pink-900/30 text-xs">✦</span>
+      {/* Top label pill */}
+      <div className="absolute top-4 left-0 right-0 flex justify-center pointer-events-none">
+        <span className="bg-black/50 backdrop-blur-md text-pink-300/80 text-xs px-4 py-1.5 rounded-full border border-pink-900/40 tracking-widest uppercase">
+          example style
+        </span>
+      </div>
+
+      {/* Bottom gradient + text */}
+      <div
+        className="absolute bottom-0 left-0 right-0 px-5 py-4 pointer-events-none"
+        style={{ background: 'linear-gradient(to top, rgba(9,6,12,0.85) 0%, transparent 100%)' }}
+      >
+        <p className="text-pink-200/70 text-sm font-display italic text-center">
+          your result will appear here ♥
+        </p>
+      </div>
     </div>
   )
 }
@@ -116,8 +150,8 @@ export default function Home() {
               </p>
 
               <h1
-                className="font-display text-[80px] leading-none tracking-tight mb-4 relative"
-                style={{ fontStyle: 'italic', fontWeight: 900 }}
+                className="font-logo text-[80px] leading-none tracking-tight mb-4 relative"
+                style={{ fontWeight: 900 }}
               >
                 <span className="text-pink-100">H</span>
                 <span className="text-pink-400">o</span>

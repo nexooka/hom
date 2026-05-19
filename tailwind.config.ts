@@ -22,6 +22,7 @@ const config: Config = {
       },
       fontFamily: {
         display: ['var(--font-fraunces)', 'serif'],
+        logo: ['var(--font-nunito)', 'sans-serif'],
       },
     },
   },

@@ -1,6 +1,12 @@
 import type { Metadata } from 'next'
-import { Fraunces } from 'next/font/google'
+import { Nunito, Fraunces } from 'next/font/google'
 import './globals.css'
+
+const nunito = Nunito({
+  subsets: ['latin'],
+  weight: ['400', '600', '800', '900'],
+  variable: '--font-nunito',
+})
 
 const fraunces = Fraunces({
   subsets: ['latin'],
@@ -16,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`bg-[#09060c] ${fraunces.variable}`}>
+    <html lang="en" className={`bg-[#09060c] ${fraunces.variable} ${nunito.variable}`}>
       <body className="bg-[#09060c] text-pink-100 antialiased min-h-screen">
         {children}
       </body>

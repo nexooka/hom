@@ -5,6 +5,7 @@
 :root {
   color-scheme: dark;
   --font-fraunces: 'Fraunces', serif;
+  --font-nunito: 'Nunito', sans-serif;
 }
 
 * { box-sizing: border-box; }
