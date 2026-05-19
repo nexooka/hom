@@ -1,130 +1,154 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { HfInference } from '@huggingface/inference'
+import { GoogleGenAI } from '@google/genai'
 import fs from 'fs'
 import path from 'path'
-import { buildInstruction, buildPrompt } from '@/lib/promptBuilder'
 
 const REF_FILES = ['ref1.png', 'ref2.png', 'ref3.png', 'ref4.png', 'ref5.png']
 
-function pickRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]
+function loadRef(name: string) {
+  const buf = fs.readFileSync(path.join(process.cwd(), 'public', 'refs', name))
+  return { bytes: buf.toString('base64'), mimeType: 'image/png' }
 }
 
-function loadRefBlob(): Blob {
-  const buf = fs.readFileSync(
-    path.join(process.cwd(), 'public', 'refs', pickRandom(REF_FILES))
-  )
-  return new Blob([buf], { type: 'image/png' })
+function buildGeminiPrompt(userPrompt: string): string {
+  return [
+    'Look carefully at all the reference hamster sticker images above.',
+    'They define the EXACT visual style you must copy — nothing else.',
+    '',
+    'Style rules from the examples:',
+    '• White egg/blob-shaped hamster body, thick rough jagged black outline (not smooth)',
+    '• Two small black dot eyes each surrounded by messy scribbled dark marks radiating outward',
+    '• Tiny flat pink triangle nose, centered, no gradient',
+    '• Zero shading, zero gradients — pure flat colors only',
+    '• Deliberately crude badly-drawn MS Paint quality',
+    '• Pure solid black #000000 background',
+    '',
+    `Generate a NEW hamster sticker where the hamster is: ${userPrompt}`,
+    '',
+    'Show the scenario (${userPrompt}) clearly and visibly in the image.',
+    'Match the crude ugly drawing style from the examples exactly.',
+    'Black background.',
+  ].join('\n')
 }
 
-// ── Stage 1: HuggingFace instruct-pix2pix (img2img — model SEES reference) ──
-// Edits a real reference hamster based on the instruction.
-// Preserves the crude style because it starts from an actual example.
-async function tryImg2Img(prompt: string, token: string): Promise<string | null> {
-  const hf = new HfInference(token)
-  const ref = loadRefBlob()
+// Model names to try, in order of preference.
+// Gemini image generation model names change frequently — we probe until one works.
+const CANDIDATE_MODELS = [
+  'gemini-2.0-flash-preview-image-generation',
+  'gemini-2.0-flash-image-generation',
+  'gemini-2.5-flash-preview-image-generation',
+  'gemini-2.5-flash-image-generation',
+  'gemini-2.5-pro-preview-image-generation',
+  'gemini-2.0-flash-exp-image-generation',
+  'gemini-2.0-flash-exp',
+]
 
-  const blob = await hf.imageToImage({
-    model: 'timbrooks/instruct-pix2pix',
-    inputs: ref,
-    parameters: {
-      prompt: buildInstruction(prompt),
-      image_guidance_scale: 1.8,
-      guidance_scale: 10,
-      num_inference_steps: 25,
-    },
-  } as Parameters<typeof hf.imageToImage>[0])
+// Cache the first model name that works — avoids probing on every request
+let cachedModel: string | null = null
 
-  if (!blob) return null
-  const buf = Buffer.from(await (blob as unknown as Blob).arrayBuffer())
-  return `data:image/jpeg;base64,${buf.toString('base64')}`
-}
+type Part = { inlineData?: { mimeType?: string; data?: string } }
 
-// ── Stage 2: HuggingFace FLUX text-to-image ──────────────────────────────────
-async function tryFlux(prompt: string, token: string): Promise<string | null> {
-  const hf = new HfInference(token)
-  const raw = await hf.textToImage({
-    model: 'black-forest-labs/FLUX.1-schnell',
-    inputs: buildPrompt(prompt),
-    parameters: { num_inference_steps: 4, width: 1024, height: 1024 },
-  } as Parameters<typeof hf.textToImage>[0])
+async function tryGenerate(ai: GoogleGenAI, model: string, userPrompt: string): Promise<string | null> {
+  const refs = REF_FILES.map(loadRef)
 
-  if (!raw) return null
-  if (typeof raw === 'string') return raw
-  const buf = Buffer.from(await (raw as unknown as Blob).arrayBuffer())
-  return `data:image/jpeg;base64,${buf.toString('base64')}`
-}
+  const parts = [
+    // Send all 5 reference images so Gemini sees the exact style
+    ...refs.map(r => ({ inlineData: { mimeType: r.mimeType, data: r.bytes } })),
+    { text: buildGeminiPrompt(userPrompt) },
+  ]
 
-// ── Stage 3: Pollinations.ai — NO API KEY NEEDED ─────────────────────────────
-// Always available as last resort. Uses FLUX under the hood.
-async function tryPollinations(prompt: string): Promise<string | null> {
-  const params = new URLSearchParams({
-    model: 'flux',
-    width: '1024',
-    height: '1024',
-    seed: String(Math.floor(Math.random() * 999999)),
-    nologo: 'true',
-    enhance: 'false',
+  const response = await ai.models.generateContent({
+    model,
+    contents: [{ role: 'user', parts }],
+    config: { responseModalities: ['IMAGE'] },
   })
-  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(buildPrompt(prompt))}?${params}`
-  const res = await fetch(url, { signal: AbortSignal.timeout(120_000) })
-  if (!res.ok) return null
-  const buf = Buffer.from(await res.arrayBuffer())
-  return `data:image/jpeg;base64,${buf.toString('base64')}`
+
+  // Extract image bytes from the response
+  const responseParts: Part[] = (response.candidates?.[0]?.content?.parts ?? []) as Part[]
+  for (const part of responseParts) {
+    if (part.inlineData?.data) {
+      return `data:${part.inlineData.mimeType ?? 'image/png'};base64,${part.inlineData.data}`
+    }
+  }
+  if (response.data) return `data:image/png;base64,${response.data}`
+  return null
+}
+
+async function discoverImageModel(ai: GoogleGenAI): Promise<string | null> {
+  try {
+    const pager = await ai.models.list()
+    for await (const m of pager) {
+      const name = String(m.name ?? '').replace(/^models\//, '')
+      if (name.toLowerCase().includes('image') && name.toLowerCase().includes('generation')) {
+        console.log('[generate] Discovered model via list:', name)
+        return name
+      }
+    }
+  } catch (e) {
+    console.warn('[generate] model list failed:', e)
+  }
+  return null
 }
 
 export async function POST(req: NextRequest) {
   try {
-    const hfToken = process.env.HF_TOKEN
-
-    const body = await req.json()
-    const prompt: string = typeof body?.prompt === 'string' ? body.prompt.trim() : ''
-    if (!prompt) return NextResponse.json({ error: 'Prompt is required' }, { status: 400 })
-    if (prompt.length > 500) return NextResponse.json({ error: 'Prompt too long' }, { status: 400 })
-
-    if (hfToken) {
-      // Stage 1: img2img — model sees a real reference hamster
-      try {
-        const url = await tryImg2Img(prompt, hfToken)
-        if (url) {
-          console.log('[generate] ✓ Stage 1: instruct-pix2pix img2img')
-          return NextResponse.json({ imageUrl: url })
-        }
-      } catch (e) {
-        console.warn('[generate] ✗ Stage 1 failed:', (e as Error).message?.slice(0, 150))
-      }
-
-      // Stage 2: FLUX text-to-image
-      try {
-        const url = await tryFlux(prompt, hfToken)
-        if (url) {
-          console.log('[generate] ✓ Stage 2: HuggingFace FLUX')
-          return NextResponse.json({ imageUrl: url })
-        }
-      } catch (e) {
-        console.warn('[generate] ✗ Stage 2 failed:', (e as Error).message?.slice(0, 150))
-      }
-    } else {
-      console.log('[generate] No HF_TOKEN — skipping stages 1 & 2, using Pollinations')
+    const geminiKey = process.env.GEMINI_KEY
+    if (!geminiKey) {
+      return NextResponse.json(
+        { error: 'GEMINI_KEY not set. Get a free key at aistudio.google.com' },
+        { status: 500 }
+      )
     }
 
-    // Stage 3: Pollinations — no API key needed
-    try {
-      const url = await tryPollinations(prompt)
-      if (url) {
-        console.log('[generate] ✓ Stage 3: Pollinations.ai')
-        return NextResponse.json({ imageUrl: url })
+    const body = await req.json()
+    const userPrompt: string = typeof body?.prompt === 'string' ? body.prompt.trim() : ''
+    if (!userPrompt) return NextResponse.json({ error: 'Prompt is required' }, { status: 400 })
+    if (userPrompt.length > 500) return NextResponse.json({ error: 'Prompt too long' }, { status: 400 })
+
+    const ai = new GoogleGenAI({ apiKey: geminiKey })
+
+    // If we already know which model works, use it directly
+    if (cachedModel) {
+      try {
+        const imageUrl = await tryGenerate(ai, cachedModel, userPrompt)
+        if (imageUrl) return NextResponse.json({ imageUrl })
+      } catch {
+        cachedModel = null // Model may have changed, re-probe below
       }
-    } catch (e) {
-      console.warn('[generate] ✗ Stage 3 failed:', (e as Error).message?.slice(0, 150))
+    }
+
+    // Probe candidate models until one works
+    const allModels = [...CANDIDATE_MODELS]
+
+    // Also try any image generation models discovered dynamically
+    const discovered = await discoverImageModel(ai)
+    if (discovered && !allModels.includes(discovered)) allModels.unshift(discovered)
+
+    for (const model of allModels) {
+      try {
+        const imageUrl = await tryGenerate(ai, model, userPrompt)
+        if (imageUrl) {
+          console.log(`[generate] ✓ Model worked: ${model}`)
+          cachedModel = model
+          return NextResponse.json({ imageUrl })
+        }
+      } catch (e) {
+        const msg = String((e as Error).message ?? '').slice(0, 120)
+        console.warn(`[generate] ✗ ${model}: ${msg}`)
+      }
     }
 
     return NextResponse.json(
-      { error: 'Generation failed — check terminal for details.' },
+      {
+        error:
+          'No Gemini image generation model worked. ' +
+          'Visit /api/models to see available models on your account. ' +
+          'You may need to enable image generation in Google AI Studio.',
+      },
       { status: 500 }
     )
   } catch (err) {
-    console.error('[generate] Unhandled error:', err)
+    console.error('[generate] Error:', err)
     return NextResponse.json({ error: (err as Error).message ?? 'Unknown error' }, { status: 500 })
   }
 }
