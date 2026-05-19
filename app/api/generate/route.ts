@@ -25,7 +25,7 @@ function buildGeminiPrompt(userPrompt: string): string {
     '',
     `Generate a NEW hamster sticker where the hamster is: ${userPrompt}`,
     '',
-    'Show the scenario (${userPrompt}) clearly and visibly in the image.',
+    `Show the scenario (${userPrompt}) clearly and visibly in the image.`,
     'Match the crude ugly drawing style from the examples exactly.',
     'Black background.',
   ].join('\n')
@@ -36,7 +36,6 @@ const CANDIDATE_MODELS = [
   'gemini-3.1-flash-image-preview',  // newest, best quality
   'gemini-3-pro-image-preview',       // pro quality
   'gemini-2.5-flash-image',           // stable
-  'gemini-3-pro-image-preview',       // fallback
 ]
 
 // Cache the first model name that works — avoids probing on every request
@@ -129,8 +128,19 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ imageUrl })
         }
       } catch (e) {
-        const msg = String((e as Error).message ?? '').slice(0, 120)
-        console.warn(`[generate] ✗ ${model}: ${msg}`)
+        const msg = String((e as Error).message ?? '')
+        const short = msg.slice(0, 120)
+
+        // 429 = rate limited — stop immediately, don't burn quota on other models
+        if (msg.includes('429')) {
+          console.warn(`[generate] ✗ ${model}: rate limited (429)`)
+          return NextResponse.json(
+            { error: 'Gemini image quota reached. Wait 1 minute and try again, or enable billing at aistudio.google.com.' },
+            { status: 429 }
+          )
+        }
+
+        console.warn(`[generate] ✗ ${model}: ${short}`)
       }
     }
 
