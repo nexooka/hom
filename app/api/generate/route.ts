@@ -1,20 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Replicate from 'replicate'
 import { buildPrompt } from '@/lib/promptBuilder'
 
-const replicate = new Replicate({
-  auth: process.env.REPLICATE_API_TOKEN,
-})
-
-// Things we never want in the output — locks out the polished/animated aesthetic
 const NEGATIVE_PROMPT =
-  'smooth lines, clean lineart, professional art, polished, beautiful, cute kawaii, anime, manga, 3d, realistic, photorealistic, detailed fur, shading, gradients, soft lighting, disney, pixar, studio ghibli, cartoon network, well-drawn, high quality, masterpiece, 8k, detailed, intricate, watercolor, digital painting, airbrush'
+  'smooth lines, clean lineart, professional art, polished, beautiful, cute kawaii, anime, manga, 3d, realistic, photorealistic, detailed fur, shading, gradients, soft lighting, disney, pixar, studio ghibli, cartoon network, well-drawn, high quality, masterpiece, 8k, detailed, intricate, watercolor, digital painting'
 
 export async function POST(req: NextRequest) {
   try {
-    if (!process.env.REPLICATE_API_TOKEN) {
+    const token = process.env.HF_TOKEN
+    if (!token) {
       return NextResponse.json(
-        { error: 'REPLICATE_API_TOKEN is not configured. Add it to your .env file (see .env.example).' },
+        { error: 'HF_TOKEN is not configured. Add it to your .env file (see .env.example).' },
         { status: 500 }
       )
     }
@@ -31,34 +26,49 @@ export async function POST(req: NextRequest) {
 
     const styledPrompt = buildPrompt(prompt)
 
-    // Using schnell (4 steps) — faster AND produces rougher, less-polished output
-    // which is exactly what we want for the crude meme sticker aesthetic.
-    // flux-dev at 28 steps looks too clean/animated; schnell at 4 stays raw.
-    const output = await replicate.run(
-      'black-forest-labs/flux-schnell',
+    const response = await fetch(
+      'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell',
       {
-        input: {
-          prompt: styledPrompt,
-          num_outputs: 1,
-          num_inference_steps: 4,
-          output_format: 'png',
-          output_quality: 95,
-          aspect_ratio: '1:1',
-          go_fast: true,
-          negative_prompt: NEGATIVE_PROMPT,
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'x-wait-for-model': 'true',
         },
+        body: JSON.stringify({
+          inputs: styledPrompt,
+          parameters: {
+            num_inference_steps: 4,
+            width: 1024,
+            height: 1024,
+            negative_prompt: NEGATIVE_PROMPT,
+          },
+        }),
+        // HF cold starts can take up to 60s
+        signal: AbortSignal.timeout(120_000),
       }
     )
 
-    const imageOutput = Array.isArray(output) ? output[0] : output
-    const imageUrl =
-      typeof imageOutput === 'string'
-        ? imageOutput
-        : (imageOutput as { url?: () => string })?.url?.() ?? imageOutput?.toString()
-
-    if (!imageUrl || imageUrl === '[object Object]') {
-      return NextResponse.json({ error: 'No valid image URL returned from generation' }, { status: 500 })
+    if (!response.ok) {
+      const text = await response.text()
+      console.error('[/api/generate] HF error:', response.status, text)
+      if (response.status === 503) {
+        return NextResponse.json(
+          { error: 'Model is loading, please try again in 20 seconds.' },
+          { status: 503 }
+        )
+      }
+      return NextResponse.json(
+        { error: `Generation failed (${response.status}): ${text}` },
+        { status: 500 }
+      )
     }
+
+    // HF returns raw image bytes — convert to base64 data URL
+    const imageBuffer = await response.arrayBuffer()
+    const base64 = Buffer.from(imageBuffer).toString('base64')
+    const contentType = response.headers.get('content-type') ?? 'image/jpeg'
+    const imageUrl = `data:${contentType};base64,${base64}`
 
     return NextResponse.json({ imageUrl })
   } catch (err) {
