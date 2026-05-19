@@ -14,39 +14,33 @@ export default function LoadingHamster() {
   }, [])
 
   return (
-    <div className="flex flex-col items-center gap-6 py-8">
-      <div className="relative w-32 h-32">
-        {/* Outer ring */}
-        <div className="absolute inset-0 rounded-full border-4 border-orange-500/20 animate-spin-slow" />
-        {/* Inner ring opposite direction */}
+    <div className="flex flex-col items-center gap-6 py-10">
+      <div className="relative w-28 h-28">
+        <div className="absolute inset-0 rounded-full border border-orange-500/20 animate-spin-slow" />
         <div
-          className="absolute inset-2 rounded-full border-4 border-dashed border-orange-400/40"
-          style={{ animation: 'spin 2s linear infinite reverse' }}
+          className="absolute inset-3 rounded-full border border-dashed border-orange-400/20"
+          style={{ animation: 'spin 3s linear infinite reverse' }}
         />
-        {/* Hamster face */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-5xl select-none animate-bounce-slow">🐹</span>
+          <span className="text-5xl select-none" style={{ animation: 'bounce 2s ease-in-out infinite' }}>🐹</span>
         </div>
       </div>
 
-      <div className="text-center">
-        <p className="text-orange-400 text-sm tracking-widest uppercase animate-pulse">
-          Generating...
+      <div className="text-center px-6">
+        <p className="text-orange-400/80 text-xs tracking-[0.3em] uppercase mb-2">
+          generating...
         </p>
-        <p className="text-gray-400 text-xs mt-2 transition-all duration-500">
+        <p className="text-[#9a7040] text-sm transition-all duration-500 italic">
           {LOADING_MESSAGES[msgIndex]}
         </p>
       </div>
 
-      {/* Progress dots */}
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         {[0, 1, 2, 3].map((i) => (
           <div
             key={i}
-            className="w-2 h-2 rounded-full bg-orange-500"
-            style={{
-              animation: `bounce 1.4s ease-in-out ${i * 0.16}s infinite`,
-            }}
+            className="w-1.5 h-1.5 rounded-full bg-orange-500/60"
+            style={{ animation: `bounce 1.4s ease-in-out ${i * 0.18}s infinite` }}
           />
         ))}
       </div>

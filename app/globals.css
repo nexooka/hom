@@ -4,6 +4,7 @@
 
 :root {
   color-scheme: dark;
+  --font-fraunces: 'Fraunces', serif;
 }
 
 * {
@@ -11,26 +12,33 @@
 }
 
 body {
-  background-color: #000000;
-  color: #ffffff;
+  background-color: #080604;
+  color: #f0e0c8;
 }
 
-/* Thin custom scrollbar */
-.scrollbar-thin::-webkit-scrollbar {
-  height: 4px;
+/* Warm selection */
+::selection {
+  background: rgba(249, 115, 22, 0.35);
+  color: #fff;
 }
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: #111;
+
+/* Thin scrollbar */
+::-webkit-scrollbar {
+  height: 3px;
+  width: 3px;
 }
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #333;
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #3a2810;
   border-radius: 2px;
 }
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #555;
+::-webkit-scrollbar-thumb:hover {
+  background: #6a4820;
 }
 
-/* Selection */
-::selection {
-  background: rgba(249, 115, 22, 0.3);
+/* Display font utility */
+.font-display {
+  font-family: var(--font-fraunces), serif;
 }

@@ -40,21 +40,27 @@ export default function ImageResult({ sticker, onRegenerate, isLoading }: Props)
   }
 
   return (
-    <div className="w-full flex flex-col gap-4">
+    <div className="w-full flex flex-col gap-5">
 
       {/* Label row */}
       <div className="flex items-center justify-between">
-        <span className="text-gray-400 text-xs uppercase tracking-widest">Result</span>
+        <span className="text-[#6a4820] text-xs uppercase tracking-widest">your hamster</span>
         <button
           onClick={copyPrompt}
-          className="text-gray-500 hover:text-orange-400 text-xs transition-colors"
+          className="text-[#6a4820] hover:text-orange-400 text-xs transition-colors"
         >
           {copied ? '✓ copied' : 'copy prompt'}
         </button>
       </div>
 
-      {/* Image */}
-      <div className="relative w-full rounded-2xl overflow-hidden bg-black border border-white/[0.07]" style={{ aspectRatio: '1/1' }}>
+      {/* Image — warm frame */}
+      <div
+        className="relative w-full rounded-3xl overflow-hidden"
+        style={{
+          aspectRatio: '1/1',
+          boxShadow: '0 0 0 1px #2a1a08, 0 0 60px rgba(249,115,22,0.08)',
+        }}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={sticker.imageUrl}
@@ -65,8 +71,8 @@ export default function ImageResult({ sticker, onRegenerate, isLoading }: Props)
       </div>
 
       {/* Prompt */}
-      <p className="text-gray-500 text-xs px-1 italic truncate">
-        &quot;{sticker.prompt}&quot;
+      <p className="text-[#7a5030] text-xs px-1 italic truncate text-center">
+        &ldquo;{sticker.prompt}&rdquo;
       </p>
 
       {/* Buttons */}
@@ -74,20 +80,19 @@ export default function ImageResult({ sticker, onRegenerate, isLoading }: Props)
         <button
           onClick={downloadImage}
           disabled={downloading}
-          className="flex-1 py-3.5 rounded-2xl font-bold text-black uppercase tracking-wide text-sm transition-all duration-150
-            bg-orange-500 hover:bg-orange-400 active:scale-[0.98]
-            disabled:opacity-50
-            shadow-[0_0_25px_rgba(249,115,22,0.2)] hover:shadow-[0_0_35px_rgba(249,115,22,0.35)]"
+          className="flex-1 py-4 rounded-2xl font-semibold text-[#080604] uppercase tracking-widest text-xs transition-all duration-150 active:scale-[0.98] disabled:opacity-50"
+          style={{
+            background: 'linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ea6d10 100%)',
+            boxShadow: '0 0 30px rgba(249,115,22,0.25)',
+          }}
         >
-          {downloading ? 'Saving...' : '↓ Download PNG'}
+          {downloading ? 'saving...' : '↓ download png'}
         </button>
         <button
           onClick={onRegenerate}
           disabled={isLoading}
-          title="Regenerate"
-          className="px-5 py-3.5 rounded-2xl text-gray-400 hover:text-white
-            bg-white/5 hover:bg-white/10 border border-white/8 hover:border-white/20
-            active:scale-[0.98] transition-all duration-150 disabled:opacity-30 text-base"
+          title="Try again"
+          className="px-5 py-4 rounded-2xl text-[#9a7040] hover:text-[#f0e0c8] bg-[#0e0b07] hover:bg-[#1a1208] border border-[#2a1a08] hover:border-orange-500/30 active:scale-[0.98] transition-all duration-150 disabled:opacity-30 text-base"
         >
           ↺
         </button>

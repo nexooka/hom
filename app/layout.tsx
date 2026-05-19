@@ -1,5 +1,13 @@
 import type { Metadata } from 'next'
+import { Fraunces } from 'next/font/google'
 import './globals.css'
+
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  weight: ['300', '400', '700', '900'],
+  style: ['normal', 'italic'],
+  variable: '--font-fraunces',
+})
 
 export const metadata: Metadata = {
   title: 'HOM — Hamster Sticker Generator',
@@ -18,8 +26,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="bg-black">
-      <body className="bg-black text-white antialiased min-h-screen">
+    <html lang="en" className={`bg-[#080604] ${fraunces.variable}`}>
+      <body className="bg-[#080604] text-[#f0e0c8] antialiased min-h-screen">
         {children}
       </body>
     </html>
