@@ -119,9 +119,12 @@ export default function Home() {
   const [currentSticker, setCurrentSticker] = useState<GeneratedSticker | null>(null)
   const [gallery, setGallery] = useState<GeneratedSticker[]>([])
   const [lastPrompt, setLastPrompt] = useState('')
-  const [quoteIdx, setQuoteIdx] = useState(() => randomQuote())
+  const [quoteIdx, setQuoteIdx] = useState(0)
 
-  useEffect(() => { setGallery(loadGallery()) }, [])
+  useEffect(() => {
+    setGallery(loadGallery())
+    setQuoteIdx(randomQuote())
+  }, [])
 
   const generate = useCallback(async (prompt: string) => {
     setIsLoading(true)
