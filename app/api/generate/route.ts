@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Replicate from 'replicate'
-import { buildPrompt, NEGATIVE_PROMPT } from '@/lib/promptBuilder'
+import { buildPrompt } from '@/lib/promptBuilder'
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 })
+
+// Things we never want in the output — locks out the polished/animated aesthetic
+const NEGATIVE_PROMPT =
+  'smooth lines, clean lineart, professional art, polished, beautiful, cute kawaii, anime, manga, 3d, realistic, photorealistic, detailed fur, shading, gradients, soft lighting, disney, pixar, studio ghibli, cartoon network, well-drawn, high quality, masterpiece, 8k, detailed, intricate, watercolor, digital painting, airbrush'
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,22 +31,21 @@ export async function POST(req: NextRequest) {
 
     const styledPrompt = buildPrompt(prompt)
 
-    // FLUX Dev — high quality, follows complex style prompts well.
-    // We fix seed to undefined (random) so variations feel fresh each time.
+    // Using schnell (4 steps) — faster AND produces rougher, less-polished output
+    // which is exactly what we want for the crude meme sticker aesthetic.
+    // flux-dev at 28 steps looks too clean/animated; schnell at 4 stays raw.
     const output = await replicate.run(
-      'black-forest-labs/flux-dev',
+      'black-forest-labs/flux-schnell',
       {
         input: {
           prompt: styledPrompt,
           num_outputs: 1,
-          num_inference_steps: 28,
-          guidance: 3.5,
+          num_inference_steps: 4,
           output_format: 'png',
           output_quality: 95,
           aspect_ratio: '1:1',
-          go_fast: false,
-          // Negative prompt supported via extra_lora_scale workaround is not available on flux-dev;
-          // style locking is entirely driven by the positive prompt engineering in promptBuilder.ts
+          go_fast: true,
+          negative_prompt: NEGATIVE_PROMPT,
         },
       }
     )
