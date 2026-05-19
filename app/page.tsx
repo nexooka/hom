@@ -67,8 +67,8 @@ function QuoteCard({ quote }: { quote: string }) {
       {/* Quote text */}
       <div className="relative z-10 px-12 text-center flex flex-col items-center gap-8">
         <p
-          className="font-display text-pink-100/90 leading-snug"
-          style={{ fontSize: 'clamp(1.15rem, 3vw, 1.6rem)', fontStyle: 'italic', fontWeight: 300 }}
+          className="font-logo text-pink-100/90 leading-snug"
+          style={{ fontSize: 'clamp(1.15rem, 3vw, 1.55rem)', fontWeight: 600 }}
         >
           {quote}
         </p>
@@ -244,9 +244,8 @@ export default function Home() {
             <div className="w-10 h-px bg-pink-950/60" />
           </div>
           <p className="text-pink-900 text-xs">
-            made with ♥ by <span className="text-pink-600 font-medium tracking-wide">dawid kopik</span>
+            made by <span className="text-pink-600 font-medium tracking-wide">dawid kopik</span>
           </p>
-          <p className="text-pink-950 text-xs">powered by gemini</p>
         </footer>
 
       </div>
