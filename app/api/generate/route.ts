@@ -31,16 +31,12 @@ function buildGeminiPrompt(userPrompt: string): string {
   ].join('\n')
 }
 
-// Model names to try, in order of preference.
-// Gemini image generation model names change frequently — we probe until one works.
+// Confirmed available models from /api/models — ordered best to fastest
 const CANDIDATE_MODELS = [
-  'gemini-2.0-flash-preview-image-generation',
-  'gemini-2.0-flash-image-generation',
-  'gemini-2.5-flash-preview-image-generation',
-  'gemini-2.5-flash-image-generation',
-  'gemini-2.5-pro-preview-image-generation',
-  'gemini-2.0-flash-exp-image-generation',
-  'gemini-2.0-flash-exp',
+  'gemini-3.1-flash-image-preview',  // newest, best quality
+  'gemini-3-pro-image-preview',       // pro quality
+  'gemini-2.5-flash-image',           // stable
+  'gemini-3-pro-image-preview',       // fallback
 ]
 
 // Cache the first model name that works — avoids probing on every request
