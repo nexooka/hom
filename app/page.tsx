@@ -120,7 +120,7 @@ export default function Home() {
         <div className="w-full mb-6 p-4 rounded-xl border border-red-900 bg-red-950/30">
           <p className="text-red-400 font-mono text-sm">{error}</p>
           <p className="text-red-700 font-mono text-xs mt-1">
-            Make sure REPLICATE_API_TOKEN is set in your .env file.
+            Check the terminal (where you ran npm run dev) for details on which step failed.
           </p>
         </div>
       )}
