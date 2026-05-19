@@ -7,38 +7,19 @@
   --font-fraunces: 'Fraunces', serif;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
-  background-color: #080604;
-  color: #f0e0c8;
+  background-color: #09060c;
+  color: #fce7f3;
 }
 
-/* Warm selection */
 ::selection {
-  background: rgba(249, 115, 22, 0.35);
+  background: rgba(236, 72, 153, 0.35);
   color: #fff;
 }
 
-/* Thin scrollbar */
-::-webkit-scrollbar {
-  height: 3px;
-  width: 3px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #3a2810;
-  border-radius: 2px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #6a4820;
-}
-
-/* Display font utility */
-.font-display {
-  font-family: var(--font-fraunces), serif;
-}
+::-webkit-scrollbar { height: 3px; width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #4a1030; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #7a1848; }

@@ -40,25 +40,21 @@ export default function ImageResult({ sticker, onRegenerate, isLoading }: Props)
   }
 
   return (
-    <div className="w-full flex flex-col gap-5">
+    <div className="w-full flex flex-col gap-4">
 
-      {/* Label row */}
       <div className="flex items-center justify-between">
-        <span className="text-[#6a4820] text-xs uppercase tracking-widest">your hamster</span>
-        <button
-          onClick={copyPrompt}
-          className="text-[#6a4820] hover:text-orange-400 text-xs transition-colors"
-        >
+        <span className="text-pink-700 text-xs uppercase tracking-widest">your hamster ♥</span>
+        <button onClick={copyPrompt} className="text-pink-800 hover:text-pink-400 text-xs transition-colors">
           {copied ? '✓ copied' : 'copy prompt'}
         </button>
       </div>
 
-      {/* Image — warm frame */}
+      {/* Image */}
       <div
         className="relative w-full rounded-3xl overflow-hidden"
         style={{
           aspectRatio: '1/1',
-          boxShadow: '0 0 0 1px #2a1a08, 0 0 60px rgba(249,115,22,0.08)',
+          boxShadow: '0 0 0 1px rgba(236,72,153,0.15), 0 0 80px rgba(236,72,153,0.08)',
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -71,7 +67,7 @@ export default function ImageResult({ sticker, onRegenerate, isLoading }: Props)
       </div>
 
       {/* Prompt */}
-      <p className="text-[#7a5030] text-xs px-1 italic truncate text-center">
+      <p className="text-pink-800/80 text-xs px-1 italic text-center truncate">
         &ldquo;{sticker.prompt}&rdquo;
       </p>
 
@@ -80,10 +76,10 @@ export default function ImageResult({ sticker, onRegenerate, isLoading }: Props)
         <button
           onClick={downloadImage}
           disabled={downloading}
-          className="flex-1 py-4 rounded-2xl font-semibold text-[#080604] uppercase tracking-widest text-xs transition-all duration-150 active:scale-[0.98] disabled:opacity-50"
+          className="flex-1 py-4 rounded-2xl font-semibold text-white uppercase tracking-widest text-xs transition-all duration-150 active:scale-[0.98] disabled:opacity-50"
           style={{
-            background: 'linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ea6d10 100%)',
-            boxShadow: '0 0 30px rgba(249,115,22,0.25)',
+            background: 'linear-gradient(135deg, #f472b6 0%, #ec4899 50%, #db2777 100%)',
+            boxShadow: '0 0 30px rgba(236,72,153,0.25)',
           }}
         >
           {downloading ? 'saving...' : '↓ download png'}
@@ -92,7 +88,7 @@ export default function ImageResult({ sticker, onRegenerate, isLoading }: Props)
           onClick={onRegenerate}
           disabled={isLoading}
           title="Try again"
-          className="px-5 py-4 rounded-2xl text-[#9a7040] hover:text-[#f0e0c8] bg-[#0e0b07] hover:bg-[#1a1208] border border-[#2a1a08] hover:border-orange-500/30 active:scale-[0.98] transition-all duration-150 disabled:opacity-30 text-base"
+          className="px-5 py-4 rounded-2xl text-pink-700 hover:text-pink-200 bg-pink-950/20 hover:bg-pink-900/30 border border-pink-900/30 hover:border-pink-500/30 active:scale-[0.98] transition-all duration-150 disabled:opacity-30 text-base"
         >
           ↺
         </button>

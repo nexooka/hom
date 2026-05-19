@@ -11,23 +11,13 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: 'HOM — Hamster Sticker Generator',
-  description: 'Generate custom hamster stickers in the iconic meme art style. Pure black background for iPhone sticker use.',
-  keywords: ['hamster', 'sticker', 'meme', 'generator', 'AI', 'funny'],
-  openGraph: {
-    title: 'HOM — Hamster Sticker Generator',
-    description: 'Generate your own hamster meme stickers',
-    type: 'website',
-  },
+  description: 'Generate custom hamster stickers in the iconic meme art style.',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`bg-[#080604] ${fraunces.variable}`}>
-      <body className="bg-[#080604] text-[#f0e0c8] antialiased min-h-screen">
+    <html lang="en" className={`bg-[#09060c] ${fraunces.variable}`}>
+      <body className="bg-[#09060c] text-pink-100 antialiased min-h-screen">
         {children}
       </body>
     </html>
