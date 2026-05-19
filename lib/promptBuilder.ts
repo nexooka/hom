@@ -6,58 +6,62 @@ export const REFERENCE_IMAGES = [
   '/refs/ref5.png',
 ]
 
-// ─────────────────────────────────────────────────────────────────────────────
-// STAGE 1 PROMPT: for instruct-pix2pix (the model SEES a real reference image)
-//
-// instruct-pix2pix takes an actual example hamster + this instruction.
-// It edits the reference image based on the instruction.
-// Goal: preserve every crude visual characteristic, only change the scenario.
-//
-// Instruction format must be short and direct — the model was trained on
-// simple edit commands, not long descriptions.
-// ─────────────────────────────────────────────────────────────────────────────
-export function buildStyleInstruction(userPrompt: string): string {
+// ── For instruct-pix2pix (model SEES the reference image) ────────────────────
+// Short edit instruction — this model was trained on concise commands.
+export function buildInstruction(userPrompt: string): string {
   return (
-    `Keep the exact same crude badly drawn ms paint style, ` +
-    `same white blob hamster body, same scribbled dark eye marks, ` +
-    `same pink triangle nose, same thick jagged outlines, same flat white fill. ` +
-    `Change the hamster to be: ${userPrompt}`
+    `Keep the same crude badly-drawn MS Paint style, same white blob hamster body, ` +
+    `same messy scribbled dark eye marks, same flat pink triangle nose, ` +
+    `same rough black outlines. Change the hamster to: ${userPrompt}`
   )
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// STAGE 2 PROMPT: for FLUX text-to-image fallback (no image reference)
-//
-// Based on direct visual analysis of all 47 reference images.
-// Describes every observable characteristic as precisely as possible.
-// ─────────────────────────────────────────────────────────────────────────────
-const PREFIX = [
-  'badly drawn crude internet meme hamster sticker',
-  'white egg-shaped blob body',
-  'flat pure white fill zero texture zero fur',
-  'thick jagged aliased black outline looks drawn freehand in MS Paint',
-  'two small filled black circles for eyes',
-  'heavy messy scribbled black strokes radiating around each eye like smeared mascara',
-  'small flat salmon-pink equilateral triangle nose centered on face',
-  'zero shading zero gradients pure flat colors only',
-  'looks drawn on a phone with a thick pixel brush',
-  'deliberately ugly lo-fi amateur art',
-  'crude doodle no artistic skill',
-  'internet troll meme art',
-  'pure black background',
+// ── For text-to-image (FLUX / Pollinations) ───────────────────────────────────
+// Ultra-detailed description based on direct visual analysis of all 47 images.
+// Every characteristic of the hamster meme sticker style encoded as words.
+const VISUAL_CORE = [
+  // Body
+  'white hamster blob character',
+  'pure flat white egg-shaped oval body',
+  'body shape like an upright rounded potato or chubby teardrop',
+  'no fur texture no detail just flat white fill',
+  'thick rough jagged black outline around body that looks pixelated and wobbly',
+  'outline drawn freehand with a thick pixel brush not smooth bezier curves',
+  // Eyes
+  'two small black filled oval dots for eyes in upper face area',
+  'each eye surrounded by heavy messy scribbled black strokes radiating outward',
+  'eye marks look like smeared mascara or chaotic dark scribbles',
+  'eyes look tired dramatic and slightly unhinged',
+  // Nose
+  'tiny flat salmon pink equilateral triangle nose centered on face',
+  'nose has zero gradient just flat pink fill',
+  // Art style
+  'drawn in a basic phone drawing app with thick pixel brush',
+  'MS Paint quality deliberately',
+  'badly drawn on purpose',
+  'crude lo-fi ugly amateur art aesthetic',
+  'zero shading zero gradients zero depth',
+  'intentionally terrible art style',
+  'looks like a 5-year-old drew it but with meme expressions',
+  // Format
+  'pure black #000000 background',
+  'flat 2d sticker format',
+  'character fills most of the frame',
 ].join(', ')
 
-const SUFFIX = [
-  'black background',
-  'crude pixel lines',
-  'badly drawn',
-  'ms paint quality',
-  'no smooth lines',
-  'flat white hamster blob',
+const NEGATIVE_KEYWORDS = [
+  'NOT smooth',
+  'NOT polished',
+  'NOT professional',
+  'NOT cute kawaii',
+  'NOT anime',
+  'NOT 3d',
+  'NOT realistic',
+  'NOT Pixar Disney style',
 ].join(', ')
 
 export function buildPrompt(userPrompt: string): string {
-  return `${PREFIX}, ${userPrompt}, ${SUFFIX}`
+  return `${VISUAL_CORE}, ${userPrompt}, ${NEGATIVE_KEYWORDS}, black background`
 }
 
 export const LOADING_MESSAGES = [
