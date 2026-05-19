@@ -11,26 +11,26 @@ const STORAGE_KEY = 'hom_gallery'
 const MAX_GALLERY = 24
 
 const HAMSTER_QUOTES = [
-  "Life is better with full cheeks and a cozy nest.",
-  "Run fast, rest often, love everything.",
-  "Every sunrise deserves a little wheel time.",
-  "The secret to happiness? Stuffed cheeks and a warm blanket.",
-  "Small paws, enormous heart.",
-  "Joy is always just one sunflower seed away.",
-  "Good things come to those who run on wheels.",
-  "Be the hamster you wish to see in the world.",
-  "Happiness is a warm hamster in your hands.",
-  "Live curiously, snack abundantly, nap freely.",
-  "The best adventures start at the bottom of a food bowl.",
-  "You are braver than you look and fluffier than you know.",
-  "Even the tiniest hamster casts a mighty shadow.",
-  "Today is a perfect day for seeds and sunshine.",
-  "Home is wherever your nest is.",
-  "Cheeks full of love, heart full of warmth.",
-  "Run your own race, at your own pace, on your own wheel.",
-  "Little creature, enormous joy.",
-  "Some days you eat the seed. Some days you are the seed. Either way, stay fluffy.",
-  "The world is very big, but a hamster makes it feel just the right size.",
+  { text: "The purpose of life is to live it, to taste experience to the utmost.", author: "Eleanor Roosevelt" },
+  { text: "In the middle of every difficulty lies opportunity.", author: "Albert Einstein" },
+  { text: "Happiness is not something ready-made. It comes from your own actions.", author: "Dalai Lama XIV" },
+  { text: "Keep your face always toward the sunshine, and shadows will fall behind you.", author: "Walt Whitman" },
+  { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+  { text: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
+  { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+  { text: "Tell me, what is it you plan to do with your one wild and precious life?", author: "Mary Oliver" },
+  { text: "Joy is the simplest form of gratitude.", author: "Karl Barth" },
+  { text: "We are what we repeatedly do. Excellence is not an act, but a habit.", author: "Aristotle" },
+  { text: "To live is the rarest thing in the world. Most people just exist.", author: "Oscar Wilde" },
+  { text: "Be yourself; everyone else is already taken.", author: "Oscar Wilde" },
+  { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
+  { text: "Don't judge each day by the harvest you reap but by the seeds that you plant.", author: "Robert Louis Stevenson" },
+  { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+  { text: "Spread love everywhere you go. Let no one ever leave you without feeling happier.", author: "Mother Teresa" },
+  { text: "When you arise in the morning, think of what a precious privilege it is to be alive.", author: "Marcus Aurelius" },
+  { text: "Everything you've ever wanted is on the other side of fear.", author: "George Addair" },
+  { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+  { text: "Life is not measured by the breaths we take, but by the moments that take our breath away.", author: "Maya Angelou" },
 ]
 
 function randomQuote(exclude = -1): number {
@@ -41,59 +41,45 @@ function randomQuote(exclude = -1): number {
   return idx
 }
 
-function QuoteCard({ quote }: { quote: string }) {
+function QuoteCard({ quote }: { quote: typeof HAMSTER_QUOTES[0] }) {
   return (
     <div
-      className="w-full aspect-square rounded-3xl flex flex-col items-center justify-center relative overflow-hidden"
-      style={{ background: 'linear-gradient(135deg, #120818 0%, #0d0612 50%, #160a1e 100%)' }}
+      className="w-full aspect-square rounded-3xl flex flex-col relative overflow-hidden"
+      style={{ background: 'linear-gradient(150deg, #160a20 0%, #0d0612 40%, #130818 100%)' }}
     >
-      {/* Soft background glows */}
+      {/* Ambient glows */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/3 w-56 h-56 rounded-full bg-pink-600/8 blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/3 w-40 h-40 rounded-full bg-pink-400/6 blur-2xl" />
+        <div className="absolute top-0 left-0 w-72 h-72 rounded-full bg-pink-700/6 blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-56 h-56 rounded-full bg-pink-500/6 blur-3xl" />
       </div>
 
-      {/* Decorative border */}
-      <div className="absolute inset-3 rounded-2xl border border-pink-900/20 pointer-events-none" />
+      {/* Inner frame */}
+      <div className="absolute inset-4 rounded-2xl border border-pink-900/15 pointer-events-none" />
 
-      {/* Giant opening quote mark */}
+      {/* Giant decorative opening mark — anchored top-left */}
       <div
-        className="absolute top-6 left-8 leading-none select-none pointer-events-none font-display"
-        style={{ fontSize: '140px', color: 'rgba(236,72,153,0.08)', fontStyle: 'italic', lineHeight: 1 }}
+        className="absolute -top-4 left-6 font-display select-none pointer-events-none"
+        style={{ fontSize: '220px', lineHeight: 1, color: 'rgba(236,72,153,0.07)', fontStyle: 'italic' }}
       >
         &ldquo;
       </div>
 
-      {/* Quote text */}
-      <div className="relative z-10 px-12 text-center flex flex-col items-center gap-8">
+      {/* Quote text — fills the vertical space */}
+      <div className="flex-1 flex items-center px-10 lg:px-12 relative z-10">
         <p
-          className="font-logo text-pink-100/90 leading-snug"
-          style={{ fontSize: 'clamp(1.15rem, 3vw, 1.55rem)', fontWeight: 600 }}
+          className="font-display text-pink-50 leading-relaxed"
+          style={{ fontSize: 'clamp(1.35rem, 3.2vw, 1.9rem)', fontStyle: 'italic', fontWeight: 300 }}
         >
-          {quote}
+          {quote.text}
         </p>
-
-        {/* Divider + hamster */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-px bg-pink-800/40" />
-          <span className="text-xl select-none">🐹</span>
-          <div className="w-10 h-px bg-pink-800/40" />
-        </div>
       </div>
 
-      {/* Closing quote mark bottom-right */}
-      <div
-        className="absolute bottom-2 right-8 leading-none select-none pointer-events-none font-display"
-        style={{ fontSize: '140px', color: 'rgba(236,72,153,0.08)', fontStyle: 'italic', lineHeight: 1 }}
-      >
-        &rdquo;
-      </div>
-
-      {/* Corner label */}
-      <div className="absolute bottom-5 left-0 right-0 flex justify-center">
-        <span className="text-pink-900/50 text-xs tracking-widest uppercase">
-          ✦ hom ✦
-        </span>
+      {/* Attribution — pinned to bottom */}
+      <div className="px-10 lg:px-12 pb-9 relative z-10">
+        <div className="w-8 h-px bg-pink-600/40 mb-3" />
+        <p className="text-pink-400/70 text-sm font-logo" style={{ fontWeight: 600 }}>
+          — {quote.author}
+        </p>
       </div>
     </div>
   )
@@ -223,7 +209,7 @@ export default function Home() {
             {!isLoading && (
               currentSticker
                 ? <ImageResult sticker={currentSticker} onRegenerate={regenerate} isLoading={isLoading} />
-                : <QuoteCard quote={HAMSTER_QUOTES[quoteIdx]} />
+                : <QuoteCard quote={HAMSTER_QUOTES[quoteIdx] ?? HAMSTER_QUOTES[0]} />
             )}
 
             {gallery.length > 0 && (
