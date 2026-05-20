@@ -177,7 +177,7 @@ export default function Home() {
                 give your hamster a moment. ♥
               </p>
               <p className="text-pink-900 text-xs">
-                crude ms paint stickers — black bg, iphone ready
+                generate yourself a hom. any hom you want.
               </p>
             </header>
 
