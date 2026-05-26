@@ -16,10 +16,12 @@ const SYSTEM_INSTRUCTION = [
   'These rules are ABSOLUTE and override everything else:',
   '1. NO TEXT. Zero letters, words, numbers, or symbols anywhere in the image. None.',
   '2. DRAW ONLY WHAT IS EXPLICITLY ASKED. Never add anything not in the user prompt. No food, props, scenery, or objects unless the user named them. A "happy hamster" means only a happy hamster — not cheese, not seeds, not anything else.',
-  '3. BODY SHAPE = wide triangle/cone. Narrow flat top, very wide base. NOT a circle or egg.',
-  '4. CRUDE MS PAINT STYLE. Thick jagged outlines, flat colors, zero shading, zero gradients, zero polish.',
-  '5. BLACK BACKGROUND (#000000). Nothing else.',
-  '6. HAMSTER FILLS THE FRAME. Simple composition. Hamster is the only subject.',
+  '3. ACTIONS MUST BE SHOWN CORRECTLY. If the prompt says "drinking tea" — the hamster is holding a cup and drinking from it, cup near its mouth. If it says "eating pizza" — the hamster holds pizza and bites it. The action verb defines HOW the prop is used. Never place props on top of the head or floating randomly. Props are held, worn, or used as the action describes.',
+  '4. FULL FACE EXPRESSES THE MOOD. Happy = wide bright eyes with upward curves AND a smile. Sad = droopy eyes AND downturned mouth. Angry = furrowed sharp eyes AND a frown. The eyes are the most important — they must match the emotion. The whole face acts together. Never have happy eyes with a neutral mouth or vice versa.',
+  '5. BODY SHAPE = wide triangle/cone. Narrow flat top, very wide base. NOT a circle or egg.',
+  '6. CRUDE MS PAINT STYLE. Thick jagged outlines, flat colors, zero shading, zero gradients, zero polish.',
+  '7. BLACK BACKGROUND (#000000). Nothing else.',
+  '8. HAMSTER FILLS THE FRAME. Simple composition. Hamster is the only subject.',
 ].join('\n')
 
 function buildUserPrompt(userPrompt: string): string {
@@ -28,8 +30,9 @@ function buildUserPrompt(userPrompt: string): string {
     '',
     `Draw this, and ONLY this: ${userPrompt}`,
     '',
-    'Express the mood through the hamster\'s eyes and face — happy=bright wide eyes, sad=droopy lids, angry=sharp lines.',
-    'Nothing in the image except what is described above. No text. Black background.',
+    'If there is an action (drinking, eating, holding, wearing) — show it literally and correctly. The object must be in the hamster\'s hands or at its mouth, used the way the action describes.',
+    'The hamster\'s ENTIRE FACE must express the mood — eyes, mouth, and brows all together. Eyes especially must match: happy=big bright curved eyes, sad=droopy heavy lids, angry=sharp slanted lines.',
+    'Nothing in the image except what is described. No text. Black background.',
   ].join('\n')
 }
 
