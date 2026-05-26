@@ -10,49 +10,26 @@ function loadRef(name: string) {
   return { bytes: buf.toString('base64'), mimeType: 'image/png' }
 }
 
-function buildGeminiPrompt(userPrompt: string): string {
+// Hard rules in systemInstruction — processed separately from user content, higher priority
+const SYSTEM_INSTRUCTION = [
+  'You generate crude MS Paint hamster sticker images.',
+  'These rules are ABSOLUTE and override everything else:',
+  '1. NO TEXT. Zero letters, words, numbers, or symbols anywhere in the image. None.',
+  '2. DRAW ONLY WHAT IS EXPLICITLY ASKED. Never add anything not in the user prompt. No food, props, scenery, or objects unless the user named them. A "happy hamster" means only a happy hamster — not cheese, not seeds, not anything else.',
+  '3. BODY SHAPE = wide triangle/cone. Narrow flat top, very wide base. NOT a circle or egg.',
+  '4. CRUDE MS PAINT STYLE. Thick jagged outlines, flat colors, zero shading, zero gradients, zero polish.',
+  '5. BLACK BACKGROUND (#000000). Nothing else.',
+  '6. HAMSTER FILLS THE FRAME. Simple composition. Hamster is the only subject.',
+].join('\n')
+
+function buildUserPrompt(userPrompt: string): string {
   return [
-    'You are given reference hamster sticker images. Study them carefully before generating.',
+    'The reference images above show the exact art style to copy.',
     '',
-    '=== RULE #1 — DRAW ONLY WHAT IS ASKED. NOTHING ELSE. ===',
-    `The prompt is: "${userPrompt}"`,
-    '• Draw ONLY and EXACTLY what the prompt says. Nothing more.',
-    '• Do NOT add objects, props, food, accessories, or scenery that are not explicitly mentioned.',
-    '• Do NOT infer thematically related items. "happy hamster" does NOT mean add cheese, seeds, or food. It means a happy-looking hamster — nothing else.',
-    '• Do NOT be creative with additions. Every element in the image must come directly from the prompt words.',
-    '• If the prompt is "happy hamster smiling" — draw a hamster that is smiling. That is all. No cheese. No food. No props. Just the hamster.',
-    '• Treat the prompt as a strict visual specification. Add nothing. Remove nothing.',
+    `Draw this, and ONLY this: ${userPrompt}`,
     '',
-    '=== RULE #2 — BODY SHAPE ===',
-    '• WIDE TRIANGLE / CONE — narrow flat top, extremely wide base. Like a mountain or doorstop.',
-    '• NOT a circle, NOT an egg, NOT a round blob — a TRIANGLE.',
-    '• Flat pure white fill. Thick rough jagged black outline, wobbly like a fat marker.',
-    '• Two tiny curved stub arms at the very bottom corners ("c" shapes).',
-    '',
-    '=== RULE #3 — EYES MATCH THE MOOD ===',
-    `Mood of this prompt: "${userPrompt}"`,
-    '• Happy = wide open eyes, upward curve, bright. Sad = droopy heavy lids. Angry = sharp furrowed lines. Surprised = huge wide ovals. Tired = half-closed.',
-    '• Crude and hand-drawn, but shape varies with the emotion.',
-    '• Around each eye: messy scribbled dark marks like smeared mascara. Softer for happy/calm, heavier for dramatic.',
-    '',
-    '=== RULE #4 — NOSE ===',
-    '• Small pink triangle or blob, centered, flat color only.',
-    '',
-    '=== RULE #5 — ART STYLE ===',
-    '• MS Paint quality. Drawn by a child. Thick pixel brush.',
-    '• ZERO polish, ZERO smooth lines, ZERO shading, ZERO 3D, ZERO gradients.',
-    '• NO text, NO letters, NO words anywhere in the image.',
-    '',
-    '=== RULE #6 — COMPOSITION ===',
-    '• Hamster fills most of the frame. It is the only subject.',
-    '• Black #000000 background only.',
-    '',
-    '=== BEFORE YOU OUTPUT — check every rule ===',
-    `• Does the image show ONLY what "${userPrompt}" describes, with zero additions? If not, redo.`,
-    '• Is the body a wide triangle/cone shape? If not, redo.',
-    '• Do the eyes match the mood? If not, redo.',
-    '• Is there any text anywhere? If yes, redo.',
-    '• Does it look like crude MS Paint? If not, redo.',
+    'Express the mood through the hamster\'s eyes and face — happy=bright wide eyes, sad=droopy lids, angry=sharp lines.',
+    'Nothing in the image except what is described above. No text. Black background.',
   ].join('\n')
 }
 
@@ -72,15 +49,17 @@ async function tryGenerate(ai: GoogleGenAI, model: string, userPrompt: string): 
   const refs = REF_FILES.map(loadRef)
 
   const parts = [
-    // Send all 5 reference images so Gemini sees the exact style
     ...refs.map(r => ({ inlineData: { mimeType: r.mimeType, data: r.bytes } })),
-    { text: buildGeminiPrompt(userPrompt) },
+    { text: buildUserPrompt(userPrompt) },
   ]
 
   const response = await ai.models.generateContent({
     model,
     contents: [{ role: 'user', parts }],
-    config: { responseModalities: ['IMAGE'] },
+    config: {
+      responseModalities: ['IMAGE'],
+      systemInstruction: SYSTEM_INSTRUCTION,
+    },
   })
 
   // Extract image bytes from the response
