@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>list ♥</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      background: #fdf9f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      overflow: hidden;
+    }
+
+    /* soft ambient glow at top */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -15%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 320px;
+      background: radial-gradient(ellipse, rgba(249,168,192,0.13) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HINT ── */
+    .hint {
+      margin-top: 1.8rem;
+      font-size: 0.67rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: #c0b0a8;
+      animation: breathe 2.8s ease-in-out infinite;
+      transition: opacity 0.5s ease;
+      user-select: none;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes breathe {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.9; }
+    }
+
+    /* ── ENVELOPE WRAP ── */
+    .envelope-wrap {
+      position: relative;
+      width: 420px;
+      height: 280px;
+      cursor: pointer;
+      perspective: 1000px;
+      animation: appear 0.9s cubic-bezier(0.34, 1.15, 0.64, 1) both;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      z-index: 1;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: scale(0.93) translateY(14px);
+      }
+    }
+
+    .envelope-wrap:not(.open):hover {
+      transform: scale(1.025) translateY(-4px);
+      transition: transform 0.35s cubic-bezier(0.34, 1.3, 0.64, 1);
+    }
+
+    .envelope-wrap.fade-out {
+      opacity: 0;
+      transform: scale(0.92) translateY(10px);
+      pointer-events: none;
+    }
+
+    /* ── ENVELOPE LAYERS ── */
+
+    /* white base */
+    .env-back {
+      position: absolute;
+      inset: 0;
+      background: #ffffff;
+      box-shadow:
+        0 4px 24px rgba(0,0,0,0.055),
+        0 1px 4px rgba(0,0,0,0.035);
+      z-index: 1;
+    }
+
+    /* left fold triangle */
+    .env-fold-left {
+      position: absolute;
+      top: 0; left: 0;
+      width: 50%; height: 100%;
+      background: #ede4dd;
+      clip-path: polygon(0 0, 0 100%, 100% 50%);
+      z-index: 2;
+    }
+
+    /* right fold triangle */
+    .env-fold-right {
+      position: absolute;
+      top: 0; right: 0;
+      width: 50%; height: 100%;
+      background: #ede4dd;
+      clip-path: polygon(100% 0, 100% 100%, 0 50%);
+      z-index: 2;
+    }
+
+    /* letter paper (peeking inside) */
+    .letter-peek {
+      position: absolute;
+      top: 28px;
+      left: 26px; right: 26px;
+      height: 235px;
+      background: #fffdf9;
+      border: 1px solid #ddd4c9;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      z-index: 3;
+      transition: transform 0.72s cubic-bezier(0.34, 1.05, 0.64, 1) 0.58s;
+    }
+
+    .envelope-wrap.open .letter-peek {
+      transform: translateY(-118px);
+    }
+
+    /* bottom fold triangle (sits on top of letter peek bottom) */
+    .env-fold-bottom {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 50%;
+      background: #e5d9d0;
+      clip-path: polygon(0 100%, 100% 100%, 50% 0);
+      z-index: 4;
+    }
+
+    /* top flap — opens with 3D rotateX */
+    .env-flap {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 50%;
+      background: #fafafa;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: top center;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      transition: transform 0.78s cubic-bezier(0.42, 0, 0.2, 1);
+      z-index: 5;
+    }
+
+    /* subtle gradient on flap interior */
+    .env-flap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      background: linear-gradient(160deg, transparent 30%, rgba(0,0,0,0.03) 100%);
+      pointer-events: none;
+    }
+
+    .envelope-wrap.open .env-flap {
+      transform: rotateX(-180deg);
+    }
+
+    /* border overlay — always on top, preserves the clean rectangle edge */
+    .env-border {
+      position: absolute;
+      inset: 0;
+      border: 1.5px solid #1c1c1c;
+      pointer-events: none;
+      z-index: 8;
+    }
+
+    /* wax seal */
+    .seal {
+      position: absolute;
+      top: calc(50% - 21px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: #f9a8c0;
+      border: 1.5px solid #df8da8;
+      box-shadow:
+        0 0 0 4px rgba(249,168,192,0.14),
+        0 3px 14px rgba(249,168,192,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      color: #fff;
+      z-index: 6;
+      transition: opacity 0.22s ease 0.08s, transform 0.22s ease 0.08s;
+      user-select: none;
+    }
+
+    .envelope-wrap.open .seal {
+      opacity: 0;
+      transform: translateX(-50%) scale(0.5);
+    }
+
+    /* ── FULL LETTER OVERLAY ── */
+    .letter-overlay {
+      position: fixed;
+      inset: 0;
+      background: #fdf9f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      overflow-y: auto;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.65s ease;
+    }
+
+    .letter-overlay.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* paper sheet */
+    .letter-sheet {
+      position: relative;
+      background: #fffdf9;
+      max-width: 580px;
+      width: 100%;
+      padding: 4.25rem 4.75rem;
+      border: 1px solid #ddd5c9;
+      box-shadow:
+        0 1px 3px rgba(0,0,0,0.04),
+        0 8px 40px rgba(0,0,0,0.055),
+        0 28px 80px rgba(0,0,0,0.035);
+      transform: translateY(30px);
+      transition: transform 0.72s cubic-bezier(0.34, 1.15, 0.64, 1) 0.12s;
+    }
+
+    .letter-overlay.visible .letter-sheet {
+      transform: translateY(0);
+    }
+
+    /* pink accent lines top and bottom */
+    .letter-sheet::before,
+    .letter-sheet::after {
+      content: '';
+      position: absolute;
+      left: 14%; right: 14%;
+      height: 1px;
+    }
+
+    .letter-sheet::before {
+      top: 0;
+      background: linear-gradient(
+        to right,
+        transparent,
+        rgba(249,168,192,0.75) 25%,
+        rgba(249,168,192,0.75) 75%,
+        transparent
+      );
+    }
+
+    .letter-sheet::after {
+      bottom: 0;
+      background: linear-gradient(
+        to right,
+        transparent,
+        rgba(249,168,192,0.45) 25%,
+        rgba(249,168,192,0.45) 75%,
+        transparent
+      );
+    }
+
+    .letter-date {
+      font-size: 0.67rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #c2adb5;
+      margin-bottom: 2.75rem;
+    }
+
+    .letter-body {
+      font-size: 1.2rem;
+      line-height: 2.0;
+      color: #1a1a1a;
+      font-weight: 300;
+      font-style: italic;
+    }
+
+    .letter-body p + p {
+      margin-top: 1.8rem;
+    }
+
+    .letter-sig {
+      margin-top: 3.25rem;
+      text-align: right;
+      font-size: 1.3rem;
+      font-weight: 400;
+      font-style: normal;
+      color: #1a1a1a;
+    }
+
+    .letter-sig .heart {
+      color: #f9a8c0;
+      margin-left: 0.2rem;
+    }
+
+    /* ── CLOSE BUTTON ── */
+    .close-btn {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      width: 40px; height: 40px;
+      background: rgba(255,253,249,0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid #ddd;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #aaa;
+      font-family: inherit;
+      z-index: 101;
+      transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .close-btn:hover {
+      color: #333;
+      border-color: #bbb;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 520px) {
+      .envelope-wrap {
+        width: 300px;
+        height: 200px;
+      }
+
+      .letter-peek {
+        top: 20px;
+        left: 18px; right: 18px;
+        height: 165px;
+      }
+
+      .envelope-wrap.open .letter-peek {
+        transform: translateY(-86px);
+      }
+
+      .letter-sheet {
+        padding: 2.75rem 2rem;
+      }
+
+      .letter-body {
+        font-size: 1.06rem;
+        line-height: 1.9;
+      }
+
+      .letter-sig {
+        font-size: 1.12rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="envelope-wrap" id="envelope">
+    <div class="env-back"></div>
+    <div class="env-fold-left"></div>
+    <div class="env-fold-right"></div>
+    <div class="letter-peek"></div>
+    <div class="env-fold-bottom"></div>
+    <div class="env-flap"></div>
+    <div class="seal">♥</div>
+    <div class="env-border"></div>
+  </div>
+
+  <p class="hint" id="hint">otwórz mnie</p>
+
+  <div class="letter-overlay" id="overlay">
+    <button class="close-btn" id="closeBtn" aria-label="zamknij">✕</button>
+    <div class="letter-sheet">
+      <div class="letter-date" id="letterDate"></div>
+      <div class="letter-body">
+        <p>bardzo cię kocham, aniołku. chciałbym zawsze z tobą być. wiem, że czasami bywam dla ciebie zły, zdarza mi się krzyczeć i czuję, że nie jestem dobrym chłopakiem. staram się nad tym pracować, ale czasami mam wrażenie, że to po prostu we mnie siedzi. myślę, że zrobiłem już spore postępy, ale i tak nie przestaję się starać. chciałem ci powiedzieć, że jesteś najlepszym, co mnie w życiu spotkało. nie potrafię bez ciebie żyć.</p>
+        <p>może to zabrzmi głupio, ale chcę cię przeprosić za to, że tak dużo rzeczy robię źle. ten cały instagram ciągle mnie smuci, mimo że nawet nie mam go na telefonie. potem też, jak ktoś gada o jakichś zaręczynach, to czuję się winny, że jeszcze tego nie zrobiłem. wiem, że powtarzasz, że to za wcześnie, ale jesteśmy razem od 6 lat — chyba już na to czas, a ty mówisz, że nie, tylko po to, żeby mnie nie poganiać i nie smucić. przepraszam cię za to. kocham cię tak mocno, maleństwo. jesteś dla mnie wszystkim, wercia.</p>
+      </div>
+      <div class="letter-sig">Twój Dawidek <span class="heart">♥</span></div>
+    </div>
+  </div>
+
+  <script>
+    // Dynamic date in Polish
+    const months = [
+      'stycznia','lutego','marca','kwietnia','maja','czerwca',
+      'lipca','sierpnia','września','października','listopada','grudnia'
+    ];
+    const d = new Date();
+    document.getElementById('letterDate').textContent =
+      `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+
+    // Interaction
+    const envelope  = document.getElementById('envelope');
+    const hint      = document.getElementById('hint');
+    const overlay   = document.getElementById('overlay');
+    const closeBtn  = document.getElementById('closeBtn');
+
+    let opened = false;
+
+    envelope.addEventListener('click', () => {
+      if (opened) return;
+      opened = true;
+
+      hint.style.opacity = '0';
+
+      // 1. open flap + letter peek
+      envelope.classList.add('open');
+
+      // 2. fade envelope out
+      setTimeout(() => envelope.classList.add('fade-out'), 880);
+
+      // 3. show letter overlay
+      setTimeout(() => overlay.classList.add('visible'), 1150);
+    });
+
+    closeBtn.addEventListener('click', () => {
+      overlay.classList.remove('visible');
+      setTimeout(() => {
+        envelope.classList.remove('open', 'fade-out');
+        opened = false;
+        setTimeout(() => { hint.style.opacity = ''; }, 500);
+      }, 650);
+    });
+  </script>
+
+</body>
+</html>
